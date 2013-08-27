@@ -88,12 +88,6 @@ public class BluetoothJoystickActivity extends Activity implements OnSharedPrefe
  	private boolean mCenterL = true, mCenterR = true;
  	private int mDataFormat;
  	
- 	// button data
- 	private String mStrA;
- 	private String mStrB;
- 	private String mStrC;
- 	private String mStrD;
- 	
  	// timer task
  	private Timer mUpdateTimer;
  	private int mTimeoutCounter = 0;
@@ -113,7 +107,24 @@ public class BluetoothJoystickActivity extends Activity implements OnSharedPrefe
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         mSeekBar = (SeekBar) findViewById(R.id.SeekBarMotor);
-        mSeekBar.setOnSeekBarChangeListener((OnSeekBarChangeListener) this);
+        mSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+			
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            	
+                Toast.makeText(BluetoothJoystickActivity.this, "Seekbar Value : " + progress, Toast.LENGTH_SHORT).show();
+                sendInt(seekBar.getProgress());
+                
+            }
+
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                Toast.makeText(BluetoothJoystickActivity.this, "Started Tracking Seekbar", Toast.LENGTH_SHORT).show();
+            }
+
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                mSeekBar.setSecondaryProgress(seekBar.getProgress());
+               Toast.makeText(BluetoothJoystickActivity.this, "Stopped Tracking Seekbar", Toast.LENGTH_SHORT).show();
+            }
+		});
         // If the adapter is null, then Bluetooth is not supported
         if (mBluetoothAdapter == null) {
             Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
@@ -146,10 +157,6 @@ public class BluetoothJoystickActivity extends Activity implements OnSharedPrefe
         mMaxTimeoutCount = Integer.parseInt(prefs.getString( "maxtimeout_count", "20" ));
         mDataFormat = Integer.parseInt(prefs.getString( "data_format", "5" ));
         
-        mStrA = prefs.getString( "btnA_data", "A" );
-        mStrB = prefs.getString( "btnB_data", "B" );
-        mStrC = "180";//prefs.getString( "btnC_data", "C" );
-        mStrD = prefs.getString( "btnD_data", "D" );
         
         mButtonA = (Button) findViewById(R.id.button_A);
         mButtonA.setOnClickListener(new OnClickListener() {
@@ -187,22 +194,6 @@ public class BluetoothJoystickActivity extends Activity implements OnSharedPrefe
 					UpdateMethod();
 				}
 			}, 2000, mUpdatePeriod);
-    }
-
-    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-    	
-        Toast.makeText(BluetoothJoystickActivity.this, "Seekbar Value : " + progress, Toast.LENGTH_SHORT).show();
-        sendInt(seekBar.getProgress());
-        
-    }
-
-    public void onStartTrackingTouch(SeekBar seekBar) {
-        Toast.makeText(BluetoothJoystickActivity.this, "Started Tracking Seekbar", Toast.LENGTH_SHORT).show();
-    }
-
-    public void onStopTrackingTouch(SeekBar seekBar) {
-        mSeekBar.setSecondaryProgress(seekBar.getProgress());
-       Toast.makeText(BluetoothJoystickActivity.this, "Stopped Tracking Seekbar", Toast.LENGTH_SHORT).show();
     }
     
     @Override
@@ -251,16 +242,7 @@ public class BluetoothJoystickActivity extends Activity implements OnSharedPrefe
         }else if( key.equals("maxtimeout_count") ){
         	mMaxTimeoutCount = Integer.parseInt(prefs.getString( "maxtimeout_count", "20" ));
         }else if( key.equals("data_format") ){
-        	mDataFormat = Integer.parseInt(prefs.getString( "data_format", "5" ));        	
-        }else if( key.equals("btnA_data") ){
-        	mStrA = prefs.getString( "btnA_data", "A" );
-        }else if( key.equals("btnB_data") ){
-        	mStrB = prefs.getString( "btnB_data", "B" );
-        }else if( key.equals("btnC_data") ){
-        	mStrC = "180";//prefs.getString( "btnC_data", "180" );
-        }else if( key.equals("btnD_data") ){
-        	mStrD = prefs.getString( "btnD_data", "0" );
-        }
+        	mDataFormat = Integer.parseInt(prefs.getString( "data_format", "5" ));}
     }
     
     @Override
